@@ -1,51 +1,43 @@
-# Dokumentasi Proyek Backend & Frontend News
+Project Documentation: Newspaper Assignment
 
-## 📌 Pendahuluan
-Proyek ini terdiri dari **backend_news** menggunakan **Golang** dan **frontend_news** menggunakan **ReactJS**. Backend berfungsi sebagai gateway antara **Hacker News API** dan frontend, sedangkan frontend bertugas untuk menampilkan berita dan komentar dari Hacker News.
+Introduction
+This project consists of backend_news built with Golang and frontend_news using ReactJS. The backend serves as a gateway between the news database and the frontend, while the frontend is responsible for displaying news and comments.
 
----
-
-## 📂 Struktur Proyek
-```
+Project Structure
 project_root/
-│── backend_news/        # Backend dengan Golang
-│   ├── config/          # Konfigurasi database & environment
-│   ├── routes/          # Routing API
-│   ├── service/         # Logika bisnis (fetch data, caching, dll)
-│   ├── main.go          # Entry point backend
-│── frontend_news/       # Frontend dengan ReactJS
-│   ├── src/
-│   │   ├── components/  # Komponen UI (CommentList, NewsItem, dll)
-│   │   ├── pages/       # Halaman utama & detail berita
-│   │   ├── App.jsx      # Komponen utama React
-│   │   ├── main.jsx     # Entry point React
-│── README.md            # Dokumentasi proyek
-```
+│── backend_news/ # Backend with Golang
+│ ├── config/ # Database & environment configuration
+│ ├── routes/ # API routing
+│ ├── service/ # Business logic (fetching data, caching, etc.)
+│ ├── main.go # Backend entry point
+│── frontend_news/ # Frontend with ReactJS
+│ ├── src/
+│ │ ├── components/ # UI components (CommentList, NewsItem, etc.)
+│ │ ├── pages/ # Main & news detail pages
+│ │ ├── App.jsx # Main React component
+│ │ ├── main.jsx # React entry point
+│── README.md # Project documentation
 
----
-
-## 🚀 Backend (Golang) - `backend_news`
-
-### **1️⃣ Instalasi Backend**
-Pastikan **Golang** sudah terinstal, lalu jalankan:
-```sh
+Backend (Golang) - backend_news
+Backend Installation
+Ensure Golang is installed, then run:
 cd backend_news
 go mod init backend_news
 go get -u github.com/gin-gonic/gin
 go get -u github.com/go-sql-driver/mysql
 go run main.go
-```
 
-### **2️⃣ API Endpoint**
-| Method | Endpoint         | Deskripsi                                  |
-|--------|----------------|--------------------------------------------|
-| GET    | `/news`        | Mengambil daftar berita dari Hacker News  |
-| GET    | `/categori/:categori` | Menampilkan berita berdasarkan kategori |
-| GET    | `/comment?story_id=:id` | Mengambil komentar dari berita tertentu |
+API Endpoints
+Method  Endpoint Description
 
-### **3️⃣ Koneksi Database (MySQL)**
-Edit `config/database.go` untuk konfigurasi MySQL:
-```go
+GET     /news     Fetches the list of news articles
+
+GET     /category/:category  Fetches news by category
+
+GET     /comment?story_id=:id  Fetches comments for a specific news item
+
+Database Connection (MySQL)
+Edit config/database.go for MySQL configuration:
 package config
 import (
     "database/sql"
@@ -62,60 +54,62 @@ func ConnectDB() {
         panic(err)
     }
 }
-```
 
-### **4️⃣ Middleware Keamanan**
-Tambahkan middleware di `main.go` untuk keamanan:
-```go
+Security Middleware
+Add middleware in main.go for security:
+
 r.Use(func(c *gin.Context) {
     c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
     c.Next()
 })
-```
 
----
+Sql Query
+##
+CREATE DATABASE news_cache;
 
-## 🎨 Frontend (ReactJS) - `frontend_news`
+USE news_cache;
 
-### **1️⃣ Instalasi Frontend**
-Jalankan perintah berikut untuk memulai proyek React:
-```sh
+CREATE TABLE cached_news (
+    id INT PRIMARY KEY,
+    title VARCHAR(255),
+    url TEXT,
+    category VARCHAR(50),
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+
+
+Frontend (ReactJS) - frontend_news
+Frontend Installation
 cd frontend_news
 npm create vite@latest . --template react
 npm install
 npm install axios react-router-dom
 npm run dev
-```
 
-### **2️⃣ Struktur Folder Frontend**
-```
+Frontend Folder Structure
 frontend_news/
 │── src/
 │   ├── components/
-│   │   ├── NewsCard.jsx   # component Show Data news by API
-│   │   ├── CommentItem.jsx   # Komponen detail commentar
-|   |   ├── Navbar.jsx      #Component for navigation bar
+│   │   ├── NewsCard.jsx   # Component to display news data from API
+│   │   ├── CommentItem.jsx   # Component to display comments
+│   │   ├── Navbar.jsx      # Component for navigation bar
 │   ├── pages/
 │   │   ├── Home.jsx    # Home page
-|   |   ├── Category.jsx # page for show data by category
-|   |   ├── Comment.jsx # Page for show data comment
-│   ├── App.jsx               # Entry point React
-│   ├── main.jsx              # Root file React
-```
+│   │   ├── Category.jsx # Page for category-based news
+│   │   ├── Comment.jsx # Page for displaying comments
+│   ├── App.jsx               # Main React component
+│   ├── main.jsx              # Root file for React
 
-### **3️⃣ Fetch Data dari Backend**
-#### 📌 Mengambil Daftar Berita
-```jsx
+Fetching Data from Backend
 import axios from "axios";
 useEffect(() => {
     axios.get("http://localhost:8080/news")
         .then(response => setNews(response.data))
         .catch(error => console.error(error));
 }, []);
-```
 
-#### 📌 Menampilkan Komentar di `CommentList.jsx`
-```jsx
+Displaying Comments in CommentList.jsx
 const fetchComments = async () => {
     try {
         const response = await axios.get(`http://localhost:8080/comment?story_id=${storyId}`);
@@ -124,12 +118,3 @@ const fetchComments = async () => {
         console.error("Error fetching comments:", error);
     }
 };
-```
-
----
-
-## 🎯 Kesimpulan
-Dengan proyek ini, kita berhasil membangun aplikasi **news aggregator** yang menampilkan berita dan komentar dari **Hacker News** dengan **Golang sebagai backend** dan **ReactJS sebagai frontend**.
-
-💡 **Selamat Coding! 🚀**
-
